@@ -2,6 +2,23 @@ import streamlit as st
 from fastai.vision.all import *
 from PIL import Image
 
+
+def patch_plum_resolver_compat():
+    try:
+        from plum._resolver import Resolver
+    except Exception:
+        return
+
+    if not hasattr(Resolver, "dict"):
+        def resolver_dict(self):
+            state = {}
+            for name in ("function_name", "methods", "is_faithful", "warn_redefinition"):
+                if hasattr(self, name):
+                    state[name] = getattr(self, name)
+            return state
+
+        Resolver.dict = property(resolver_dict)
+
 # 设置页面基本信息
 st.set_page_config(
     page_title="运动鞋智能分类器",
@@ -17,6 +34,7 @@ def my_splitter(items):
 @st.cache_resource
 def load_my_model():
     try:
+        patch_plum_resolver_compat()
         # 这里使用导出的 pkl 模型名称
         return load_learner('shoe_classifier.pkl')
     except Exception as e:
