@@ -1,7 +1,5 @@
-fastai
 streamlit
 torch
 torchvision
 pandas
-fasttransform
-plum-dispatch==2.8.0
+pillow
